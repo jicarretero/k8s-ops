@@ -1,0 +1,9 @@
+mongo:
+  volume:
+    mountPath: /data
+    hostPath:  /data/mongodb-data-aerosproject
+    node: k8s-node-01
+orion:
+  service:
+    hostname: orion.aeros-project.eu
+  loglevel: DEBUG
