@@ -1,0 +1,8 @@
+#!/bin/bash
+
+[ -c /dev/kmsg ] || mknod /dev/kmsg c 1 11
+
+# This 2 lines are to make Calico Work properly:
+/usr/bin/mount -o remount,rw,nosuid,nodev,noexec,relatime /sys
+/usr/bin/mount --make-shared /sys
+

@@ -1,0 +1,15 @@
+- hosts: "{{host | default('all')}}"
+  gather_facts: true
+  tasks:
+  - name: "Reconfigure kubectl in every node"
+    become: true
+    lineinfile:
+       path: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+       insertafter: '^\[Service\]$'
+       line: "Environment=\"KUBELET_EXTRA_ARGS=--node-ip={{ansible_ens4['ipv4']['address']}}\""
+
+  - name: "Restart Kubelete after the changes"
+    become: true
+    shell: |
+      systemctl daemon-reload
+      systemctl restart kubelet

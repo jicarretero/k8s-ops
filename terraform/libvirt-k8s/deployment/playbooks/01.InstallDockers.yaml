@@ -1,0 +1,106 @@
+- hosts: "{{host | default('all')}}"
+  become: true
+  gather_facts: false
+  tasks:
+  - name: "Add Docker's key"
+    # Add the APT key, so I can add later the Repository and install software from the
+    # docker repository.
+    apt_key:
+      state: present
+      url: "{{docker_apt_key_url}}"
+
+  - name: "Add Dockers's repository"
+    # Add the Docker repository
+    apt_repository:
+      state: present
+      repo: "{{docker_deb_repository}}"
+
+  - name: "Install containers in the VM"
+    # I install here the packages needed to run docker service (docker and docker.io)
+    # software-properties-common will be needed to add Google's key
+    # Packages git and jq is for (my) convenience.
+    apt:
+      name: ['containerd.io', 'curl', 'software-properties-common', 'git', 'jq', 'lsof', 'gnupg2', 'apt-transport-https', 'ca-certificates']
+      state: present
+      update_cache: yes
+
+  # - name: "Ensure service Docker is enabled from the start"
+  #  # Sometimes, docker is not enabled installing it. So, I'd like to ensure that the
+  #  # docker is up and running.
+  #  systemd:
+  #    name: docker
+  #    enabled: yes
+  #    state: started
+
+  - name: "Ensure service containerd is enabled from the start"
+    # containerd is up and running.
+    systemd:
+      name: containerd
+      enabled: yes
+      state: started
+
+  - name: "Set configuration from contaierd"
+    shell: |
+      mkdir -p /etc/containerd/ || true
+      containerd config default | tee /etc/containerd/config.toml
+      sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml
+
+  - name: "Ensure service containerd is restarted"
+    # containerd is up and running.
+    systemd:
+      name: containerd
+      enabled: yes
+      state: restarted
+
+  - name: "Add Google's kubernetes key"
+    # Add the APT key, so I can add later the Repository and install software from the
+    # kubernetes repository.
+    apt_key:
+      state: present
+      url: "{{google_apt_key_url}}"
+
+  - name: "Add Google's kubernetes repository"
+    # Add the Kubernetes repository
+    apt_repository:
+      state: present
+      repo: "{{kubernetes_deb_repository}}"
+
+  - name: "Install Kuberntes packages."
+    apt:
+    # And Install the Kubernetes packages
+    # next line for flannel
+    # name: ['kubectl', 'kubeadm', 'kubelet', 'kubernetes-cni']
+    #
+    # next line for calico
+      name: ['kubectl', 'kubeadm', 'kubelet']
+      state: present
+      update_cache: yes
+
+  - name: "Create /dev/kmsg device driver"
+    # the character device /dev/kmsg is needed by Kubelet, so we need to create it manually since
+    # it is not presen in the container. If it doesn't exits, Kubelet won't run (K8S won't work).
+    shell: |
+      [ -c /dev/kmsg ] || mknod /dev/kmsg c 1 11
+
+  - name: "Configure sysctl parameters"
+    # Configuration of network parameters for flannel K8S driver
+    copy:
+      src: "files/k8s.conf"
+      dest: "/etc/sysctl.d/k8s.conf"
+      mode: 644
+
+  - name: Last scripts around
+    # Reload the configuration from previous step.
+    shell: |
+      mkdir -p /opt/cni/bin
+      curl -O -L https://github.com/containernetworking/plugins/releases/download/v1.2.0/cni-plugins-linux-amd64-v1.2.0.tgz
+      tar -C /opt/cni/bin -xzf cni-plugins-linux-amd64-v1.2.0.tgz
+
+      rm -rf /var/lib/etcd/*
+
+      echo "br_netfilter" >> /etc/modules-load.d/modules.conf
+      modprobe br_netfilter
+      sysctl --system
+
+  vars_files:
+    - vars/variables.yaml

@@ -1,0 +1,15 @@
+[controller_container]
+tfk8scluster-0 ansible_user=ubuntu type=controller user=ubuntu group=ubuntu
+
+[worker_containers]
+tfk8scluster-1 ansible_user=ubuntu type=worker user=ubuntu group=ubuntu
+tfk8scluster-2 ansible_user=ubuntu type=worker user=ubuntu group=ubuntu
+
+[all:children]
+controller_container
+worker_containers
+
+[all:vars]
+controller_ip=10.95.10.1
+nfs-server=10.95.10.1
+

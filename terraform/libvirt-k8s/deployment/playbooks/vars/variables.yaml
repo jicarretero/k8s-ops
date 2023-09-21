@@ -1,0 +1,30 @@
+# Base packages to install docker inside the containers
+base_docker_packages: 
+  - 'docker'
+  - 'docker.io'
+  - 'curl'
+  - 'software-properties-common'
+  - 'git'
+  - 'jq'
+
+# Kubernetes packages to install in every container
+kubernetes_packages:
+  - 'kubectl'
+  - 'kubeadm'
+  - 'kubelet'
+
+# Kubernetes apt-key and repository. Yes!! Xenial. There is no newer thing for Focal or anything.
+google_apt_key_url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+kubernetes_deb_repository: "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+
+docker_apt_key_url: https://download.docker.com/linux/ubuntu/gpg
+docker_deb_repository: "deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable"
+
+# Set this parameter to "" if you want to install this in Virtual Machines. Let this parameter be
+# the way it is if you want to install in LXC
+# k8s_extra_parameters: "--ignore-preflight-errors=all"
+k8s_extra_parameters: ""
+
+# User and group of the container. We are using LXC ubuntu. User/group/password will be ubuntu
+# user: fiware
+# group: fiware

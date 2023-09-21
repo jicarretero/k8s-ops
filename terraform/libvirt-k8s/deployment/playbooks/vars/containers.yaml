@@ -1,0 +1,6 @@
+controller_container:
+  - k8s-controller
+worker_containers:
+  - k8s-node-01
+  - k8s-node-02
+  - k8s-node-03
