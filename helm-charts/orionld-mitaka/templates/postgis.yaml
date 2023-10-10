@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgisdb
+  labels:
+    name: {{ .Values.postgis.label.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: 
+      name: {{ .Values.postgis.label.name }}
+  strategy:
+    type: RollingUpdate 
+  template:
+    metadata:
+      name: postgis-db
+      labels:
+        name: {{ .Values.postgis.label.name }}
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: {{ .Values.postgis.volume.node }}
+      containers:
+        - name: postgis-db
+          env:
+            - name: POSTGRES_USER
+              value: orion
+            - name: POSTGRES_PASSWORD
+              value: orion
+            - name: POSTGRES_HOST_AUTH_METHOD
+              value: trust
+          image: {{ .Values.postgis.image }}
+          volumeMounts:
+            - name: {{ .Values.postgis.volume.name }}
+              mountPath: {{ .Values.postgis.volume.mountPath }}
+      volumes:
+        - name: {{ .Values.postgis.volume.name }}
+          hostPath:
+            path: {{ .Values.postgis.volume.hostPath }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgisdb
+  labels:
+    name: {{ .Values.postgis.label.name }}
+spec:
+  type: ClusterIP
+  selector:
+    name: {{ .Values.postgis.label.name }}
+  ports:
+    - name: postgisdb
+      port: {{ .Values.postgis.dbport }}
+      protocol: TCP

@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mintaka-ld
+  labels:
+    name: {{ .Values.mintaka.label.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: 
+      name: {{ .Values.mintaka.label.name }}
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      name: mintaka-ld
+      labels:
+        name: {{ .Values.mintaka.label.name }}
+    spec:
+      restartPolicy: Always
+      hostname: mintaka-ld
+      nodeSelector:
+        kubernetes.io/hostname: k8s-node-01
+      containers:
+        - name: mintaka-ld
+          env:
+            - name: DATASOURCES_DEFAULT_DATABASE
+              value: orion
+            - name: DATASOURCES_DEFAULT_PASSWORD
+              value: orion
+            - name: DATASOURCES_DEFAULT_USERNAME
+              value: orion
+            - name: DATASOURCES_DEFAULT_HOST
+              value: {{ .Values.postgis.dbhost }}
+          image: {{ .Values.mintaka.image }}
+          ports:
+            - containerPort: {{ .Values.mintaka.port }}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.mintaka.service.name }}
+  labels:
+    name: {{ .Values.mintaka.label.name }}
+spec:
+  type: ClusterIP
+  selector:
+    name: {{ .Values.mintaka.label.name }}
+  ports:
+    - name: mintaka
+      port: {{ .Values.mintaka.exposedPort }}
+      targetPort: {{ .Values.mintaka.port }}
+      protocol: TCP
+

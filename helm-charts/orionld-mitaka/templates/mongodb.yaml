@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+  labels:
+    name: {{ .Values.mongo.label.name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: 
+      name: {{ .Values.mongo.label.name }}
+  strategy:
+    type: RollingUpdate 
+  template:
+    metadata:
+      name: mongo-db
+      labels:
+        name: {{ .Values.mongo.label.name }}
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: {{ .Values.mongo.volume.node }}
+      containers:
+        - name: mongo-db
+          image: {{ .Values.mongo.image }}
+          args: ["--nojournal"]
+          volumeMounts:
+            - name: {{ .Values.mongo.volume.name }}
+              mountPath: {{ .Values.mongo.volume.mountPath }}
+      volumes:
+        - name: mongodb-volume
+          hostPath:
+            path: {{ .Values.mongo.volume.hostPath }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb
+  labels:
+    name: {{ .Values.mongo.label.name }}
+spec:
+  type: ClusterIP
+  selector:
+    name: {{ .Values.mongo.label.name }}
+  ports:
+    - name: mongodb
+      port: {{ .Values.mongo.dbport }}
+      protocol: TCP

@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Values.mintaka.service.name }}
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: {{ .Values.mintaka.service.hostname }}
+    http:
+      paths:
+      - path: /mintaka(/|$)(.*)
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ .Values.mintaka.service.name }}
+            port: 
+              number: {{ .Values.mintaka.port }}

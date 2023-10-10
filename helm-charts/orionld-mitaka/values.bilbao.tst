@@ -1,0 +1,24 @@
+mongo:
+  label:
+    name: mongodb-rs
+  dbhost: mongodb
+  dbport: 27017
+  image: mongo:5.0
+  volume:
+    name: mongodb-volume
+    mountPath: /data
+    hostPath:  /home/fiware/foo-mongo-data
+    node: k8s-node-03
+orion:
+  experimental: true
+  port: 1026
+  exposedPort: 80
+  image: fiware/orion-ld
+  label:
+    name: orion-ld-rs
+  service:
+    name: orion-ld-service
+    hostname: orion.bilbao.eu
+  loglevel: DEBUG
+
+

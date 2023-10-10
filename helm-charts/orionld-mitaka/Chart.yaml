@@ -1,0 +1,16 @@
+apiVersion: v2
+name: orion-ld
+version: 0.1.0
+appVersion: 0.1.0
+kubeVersion: '>= 1.19-0'
+home: https://github.com/FIWARE/context.Orion-LD
+description: A simple helm chart to show "running" this in Kubernetes.
+keywords:
+- fiware
+- orion-ld
+- orion
+sources:
+- https://github.com/FIWARE/context.Orion-LD
+maintainers:
+- name: Jose Ignacio Carretero
+  email: joseignacio.carretero@fiware.org

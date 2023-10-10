@@ -1,0 +1,12 @@
+helm install $PWD --generate-name
+helm install $PWD --create-namespace  --namespace aeros-project-eu --values ./values.aeros-project.eu --generate-name
+helm install $PWD --create-namespace --namespace jicg-eu --values ./values.jicg.eu --generate-name
+
+helm list -n aeros-project-eu
+help list --all-namespaces
+
+helm delete -n aeros-project-eu orionld-1688066057
+
+kubectl  logs -f  -n aeros-project-eu deployment/orion-ld
+kubectl  logs -f  -n jicg-eu deployment/orion-ld
+kubectl  logs -f  deployment/orion-ld

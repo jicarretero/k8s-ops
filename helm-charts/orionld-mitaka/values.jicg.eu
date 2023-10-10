@@ -1,0 +1,9 @@
+mongo:
+  volume:
+    mountPath: /data
+    hostPath:  /data/mongodb-data-jicgeu
+    node: k8s-node-02
+orion:
+  service:
+    hostname: orion.jicg.eu
+  loglevel: DEBUG
