@@ -17,8 +17,10 @@ spec:
       labels:
         name: {{ .Values.mongo.label.name }}
     spec:
+      {{- if .Values.mongo.volume.node }}
       nodeSelector:
         kubernetes.io/hostname: {{ .Values.mongo.volume.node }}
+      {{- end }}
       containers:
         - name: mongo-db
           image: {{ .Values.mongo.image }}
@@ -28,8 +30,13 @@ spec:
               mountPath: {{ .Values.mongo.volume.mountPath }}
       volumes:
         - name: mongodb-volume
+          {{- if eq .Values.mongo.volume.kind "hostPath" }}
           hostPath:
             path: {{ .Values.mongo.volume.hostPath }}
+          {{ else }}
+          emptyDir:
+            sizeLimit: {{ .Values.mongo.volume.sizeLimit | default "500Mi" }}
+          {{- end }}
 ---
 apiVersion: v1
 kind: Service

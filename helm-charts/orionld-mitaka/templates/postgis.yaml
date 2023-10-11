@@ -17,8 +17,10 @@ spec:
       labels:
         name: {{ .Values.postgis.label.name }}
     spec:
+      {{- if .Values.postgis.volume.node }}
       nodeSelector:
         kubernetes.io/hostname: {{ .Values.postgis.volume.node }}
+      {{- end }}
       containers:
         - name: postgis-db
           env:
@@ -34,8 +36,13 @@ spec:
               mountPath: {{ .Values.postgis.volume.mountPath }}
       volumes:
         - name: {{ .Values.postgis.volume.name }}
+          {{- if eq .Values.postgis.volume.kind "hostPath" }}
           hostPath:
             path: {{ .Values.postgis.volume.hostPath }}
+          {{ else }}
+          emptyDir:
+            sizeLimit: {{ .Values.postgis.volume.sizeLimit | default "500Mi" }}
+          {{- end }}
 ---
 apiVersion: v1
 kind: Service

@@ -5,10 +5,13 @@ mongo:
   dbport: 27017
   image: mongo:5.0
   volume:
+    kind: emptyDir
     name: mongodb-volume
     mountPath: /data
     hostPath:  /data/mongodb-data
-    node: k8s-node-03
+    # node: k8s-node-03
+    emptyDir: true
+    sizeLimit: 500Mi
 orion:
   troe: true
   experimental: true
@@ -28,10 +31,11 @@ postgis:
   dbport: 5432
   image: timescale/timescaledb-postgis:latest-pg12
   volume:
+    kind: emptyDir
     name: postgisdb-volume
     mountPath: /var/lib/postgresql/data
     hostPath:  /data/timegis
-    node: k8s-node-02
+    # node: k8s-node-02
 
 mintaka:
   label:
